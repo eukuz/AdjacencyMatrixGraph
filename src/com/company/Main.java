@@ -3,13 +3,11 @@ package com.company;
 import java.util.Scanner;
 
 public class Main {
-AdjacencyMatrixGraph<String,Integer> graph = new AdjacencyMatrixGraph();
+static AdjacencyMatrixGraph<String,Integer> graph = new AdjacencyMatrixGraph();
     public static void main(String[] args) {
-
         ParseInput(InputStringArray());
 
     }
-
 
     public static String[] InputStringArray() { //Makes an array of strings from input
         Scanner sc = new Scanner(System.in);
@@ -30,7 +28,7 @@ AdjacencyMatrixGraph<String,Integer> graph = new AdjacencyMatrixGraph();
                 case "ADD_VERTEX":
                     graph.addVertex(input[1]);
                     break;
-                case "REMOVE_VERTEX":
+                case "REMOVE_VERTEX": //TODO FIX ERROR
                     graph.removeVertex(graph.findVertex(input[1]));
                     break;
                 case "ADD_EDGE":
@@ -66,9 +64,9 @@ interface GraphADT <T extends Comparable>{
 
 class AdjacencyMatrixGraph <T extends Comparable,K extends Comparable> implements GraphADT{
 
-    DoublyLinkedList<Vertex<T>> vertexList;
-    DoublyLinkedList<Edge<K>> edgeList;
-    Edge[][] adjacencyMatrix;
+    DoublyLinkedList<Vertex<T>> vertexList = new DoublyLinkedList<>();
+    DoublyLinkedList<Edge<K>> edgeList = new DoublyLinkedList<>();
+    Edge[][] adjacencyMatrix = new Edge[2][2];
 
     public void Print(){
         String vertices="", edges="", aMatrix="";
@@ -322,7 +320,7 @@ class DoublyLinkedList<T extends Comparable> implements ListADT {
         if (i == 0) {
             first = node = new Node(value, first, null);
             if (size == 0) last = first;
-        } else if (i == size) last = new Node(value, null, last);
+        } else if (i == size) last = node = new Node(value, null, last);
         else {
             Node previous = getNode(i), next = previous.next;
             node = new Node(value, previous, next);
