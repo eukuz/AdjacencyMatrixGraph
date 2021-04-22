@@ -16,7 +16,7 @@ interface GraphADT <T extends Comparable>{
     DoublyLinkedList<Edge> edgesTo(Vertex v);
     Vertex findVertex(T value);
     Edge findEdge(T valueFrom, T valueTo);
-    Edge hasEdge(Vertex v, Vertex u);
+    boolean hasEdge(Vertex v, Vertex u);
 }
 
 class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
@@ -24,6 +24,30 @@ class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
     DoublyLinkedList<Vertex<T>> vertexList;
     DoublyLinkedList<Edge<T>> edgeList;
     Edge[][] adjacencyMatrix;
+
+    public void Print(){
+        String vertices="", edges="", aMatrix="";
+        Node ver = vertexList.first, ed = edgeList.first;
+
+        for (int i = 0; i < vertexList.size; i++) {
+            vertices+= ((Vertex)ver.value).toString()+" ";
+            ver= ver.next;
+        }
+
+        for (int i = 0; i < edgeList.size; i++) {
+            edges+= ((Edge)ed.value).toString()+" ";
+            ed= ed.next;
+        }
+
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            for (int j = 0; j < adjacencyMatrix.length; j++) {
+                aMatrix+=adjacencyMatrix[i][j].weight+" ";
+            }
+            aMatrix+="\n";
+        }
+
+        System.out.println(vertices+"\n"+edges+"\n"+aMatrix);
+    }
 
     void DoubleAdjacencyMatrix(){
         Edge[][] newAM = new Edge[adjacencyMatrix.length*2][adjacencyMatrix.length*2];
@@ -136,8 +160,8 @@ class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
     }
 
     @Override
-    public Edge hasEdge(Vertex v, Vertex u) {
-        return null;
+    public boolean hasEdge(Vertex v, Vertex u) {
+        return adjacencyMatrix[v.index][u.index] != null;
     }
 }
 
@@ -151,6 +175,15 @@ class Vertex <T extends Comparable> implements Comparable<Vertex<T>> {
         this.position = position;
         this.index = index;
     }
+
+    @Override
+    public String toString() {
+        return "Vertex{" +
+                "element=" + element +
+                ", index=" + index +
+                '}';
+    }
+
     @Override
     public int compareTo(Vertex v) {
         return this.element.compareTo(v.element);
@@ -167,6 +200,15 @@ class Edge <T extends Comparable> implements Comparable<Edge> {
         this.to = to;
         this.position = position;
         this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "from=" + from +
+                ", to=" + to +
+                ", weight=" + weight +
+                '}';
     }
 
     @Override
