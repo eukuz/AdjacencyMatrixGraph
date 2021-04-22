@@ -1,11 +1,56 @@
 package com.company;
 
-public class Main {
+import java.util.Scanner;
 
+public class Main {
+AdjacencyMatrixGraph<String,Integer> graph = new AdjacencyMatrixGraph();
     public static void main(String[] args) {
-        // write your code here
+
+        ParseInput(InputStringArray());
+
     }
+
+
+    public static String[] InputStringArray() { //Makes an array of strings from input
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        sc.nextLine();
+
+        String[] inputs = new String[n];
+        for (int i = 0; i < n; i++) inputs[i] = sc.nextLine();
+        return inputs;
+    }
+
+    public  static void ParseInput(String[] inputs) {
+        for (int i = 0; i < inputs.length; i++) {
+
+            String[] input = inputs[i].split(" ");
+
+            switch (input[0]){
+                case "ADD_VERTEX":
+                    graph.addVertex(input[1]);
+                    break;
+                case "REMOVE_VERTEX":
+                    graph.removeVertex(graph.findVertex(input[1]));
+                    break;
+                case "ADD_EDGE":
+                    graph.addEdge(graph.findVertex(input[1]),graph.findVertex(input[2]),input[3]);
+                    break;
+                case "REMOVE_EDGE":
+                    graph.removeEdge(graph.findEdge(input[1],input[2]));
+                    break;
+                case "HAS_EDGE":
+                    System.out.println(
+                            graph.hasEdge(graph.findVertex(input[1]),graph.findVertex(input[2]))?"TRUE":"FALSE");
+                    break;
+            }
+        }
+    }
+
+
+
 }
+
 
 interface GraphADT <T extends Comparable>{
     Vertex addVertex(T value);
@@ -19,10 +64,10 @@ interface GraphADT <T extends Comparable>{
     boolean hasEdge(Vertex v, Vertex u);
 }
 
-class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
+class AdjacencyMatrixGraph <T extends Comparable,K extends Comparable> implements GraphADT{
 
     DoublyLinkedList<Vertex<T>> vertexList;
-    DoublyLinkedList<Edge<T>> edgeList;
+    DoublyLinkedList<Edge<K>> edgeList;
     Edge[][] adjacencyMatrix;
 
     public void Print(){
