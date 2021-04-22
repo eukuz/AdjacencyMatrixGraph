@@ -9,9 +9,9 @@ public class Main {
 
 interface GraphADT <T extends Comparable>{
     Vertex addVertex(T value);
-    Vertex removeVertex(Vertex v) throws IllegalArgumentException;
-    Edge addEdge(Vertex from, Vertex to, T weight);
-    Edge removeEdge(Edge e) throws IllegalArgumentException;
+    void removeVertex(Vertex v) throws IllegalArgumentException;
+    Edge addEdge(Vertex from, Vertex to, T weight) throws IllegalArgumentException;
+    void removeEdge(Edge e) throws IllegalArgumentException;
     Edge[] edgesFrom(Vertex v);
     Edge[] edgesTo(Vertex v);
     Vertex findVertex(T value);
@@ -22,29 +22,50 @@ interface GraphADT <T extends Comparable>{
 class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
 
     DoublyLinkedList<Vertex<T>> vertexList;
-    DoublyLinkedList<Edge<T>> edgesList;
+    DoublyLinkedList<Edge<T>> edgeList;
+    Edge[][] adjacencyMatrix;
 
-
+    void DoubleAdjacencyMatrix(){
+        Edge[][] newAM = new Edge[adjacencyMatrix.length*2][adjacencyMatrix.length*2];
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            for (int j = 0; j < adjacencyMatrix.length; j++) {
+                newAM[i][j] = adjacencyMatrix[i][j];
+            }
+        }
+        adjacencyMatrix = newAM;
+    }
     @Override
     public Vertex addVertex(Comparable value) {
-        return null;
+        Vertex<Comparable> vertex= new Vertex<>(value, null, vertexList.size);
+        vertex.position = vertexList.Add(vertexList.size,vertex);
+        if(adjacencyMatrix.length< vertex.index) DoubleAdjacencyMatrix();
+        return vertex;
     }
 
     @Override
-    public Vertex removeVertex(Vertex v) throws IllegalArgumentException {
-
-     //   throw new IllegalArgumentException("There's no such a vertex in the Graph");
-        return null;
+    public void removeVertex(Vertex v) throws IllegalArgumentException {
+     //  TODO  throw new IllegalArgumentException("There's no such a vertex in the Graph");
     }
 
     @Override
-    public Edge addEdge(Vertex from, Vertex to, Comparable weight) {
-        return null;
+    public Edge addEdge(Vertex from, Vertex to, Comparable weight) throws IllegalArgumentException {
+//        if(adjacencyMatrix.length<= from.index || adjacencyMatrix.length<=to.index)
+//            throw new IndexOutOfBoundsException();
+        if(adjacencyMatrix[from.index][to.index]!= null)
+            throw new IllegalArgumentException("There's such an Edge already");
+        else {
+            Edge<Comparable> edge = new Edge<>(from,to,null, weight);
+            edge.position = edgeList.Add(edgeList.size, edge);
+            adjacencyMatrix[from.index][to.index] = edge;
+            return edge;
+        }
     }
 
     @Override
-    public Edge removeEdge(Edge e) throws IllegalArgumentException {
-        return null;
+    public void removeEdge(Edge e) throws IllegalArgumentException {
+        //  TODO  throw new IllegalArgumentException("There's no such an edge in the Graph");
+        edgeList.Remove(e.position);
+        adjacencyMatrix[e.from.index][e.to.index] = null;
     }
 
     @Override
@@ -78,14 +99,11 @@ class Vertex <T extends Comparable> implements Comparable<Vertex<T>> {
     T element;
     Node position;
     int index;
-
     public Vertex(T element, Node position, int index) {
         this.element = element;
         this.position = position;
         this.index = index;
     }
-
-
     @Override
     public int compareTo(Vertex v) {
         return this.element.compareTo(v.element);
@@ -97,10 +115,11 @@ class Edge <T extends Comparable> implements Comparable<Edge> {
     Node position;
     T weight;
 
-    public Edge(Vertex<T> from, Vertex<T> to, Node position) {
+    public Edge(Vertex<T> from, Vertex<T> to, Node position, T weight) {
         this.from = from;
         this.to = to;
         this.position = position;
+        this.weight = weight;
     }
 
     @Override
@@ -164,16 +183,18 @@ class DoublyLinkedList<T extends Comparable> implements ListADT {
     }
 
     @Override
-    public void Add(int i, Comparable value) throws IndexOutOfBoundsException {
-
+    public Node Add(int i, Comparable value) throws IndexOutOfBoundsException {
+        Node node = null;
         if (i == 0) {
-            first = new Node(value, first, null);
+            first = node = new Node(value, first, null);
             if (size == 0) last = first;
         } else if (i == size) last = new Node(value, null, last);
         else {
-            Node previous = getNode(i), next = previous.next, node = new Node(value, previous, next);
+            Node previous = getNode(i), next = previous.next;
+            node = new Node(value, previous, next);
         }
         size++;
+        return node;
     }
 
     @Override
@@ -189,6 +210,28 @@ class DoublyLinkedList<T extends Comparable> implements ListADT {
         }
         size--;
         return removedNode.value;
+    }
+
+    public int FindIndex(Node node) {
+        if(node.next==null) return size-1;
+        Node temp = first;
+        for (int i = 0; i < size-1; i++) {
+            if(temp == node) return i;
+            temp = temp.next;
+        }
+        return -1;
+    }
+    public Comparable Remove(Node node) throws IndexOutOfBoundsException {
+        if (size == 1) first = last = null;
+        else if (node == first) first = first.next;
+        else if (node == last) last = last.previous;
+        else {
+            Node previous = node.previous;
+            previous.next = node.next;
+            node.next.previous = previous;
+        }
+        size--;
+        return node.value;
     }
 }
 
@@ -218,7 +261,7 @@ interface ListADT<T extends Comparable> {
 
     T Set(int i, T value) throws IndexOutOfBoundsException;
 
-    void Add(int i, T value) throws IndexOutOfBoundsException;
+    Node Add(int i, T value) throws IndexOutOfBoundsException;
 
     T Remove(int i) throws IndexOutOfBoundsException;
 }
