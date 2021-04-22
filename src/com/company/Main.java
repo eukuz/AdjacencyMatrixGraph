@@ -12,8 +12,8 @@ interface GraphADT <T extends Comparable>{
     void removeVertex(Vertex v) throws IllegalArgumentException;
     Edge addEdge(Vertex from, Vertex to, T weight) throws IllegalArgumentException;
     void removeEdge(Edge e) throws IllegalArgumentException;
-    Edge[] edgesFrom(Vertex v);
-    Edge[] edgesTo(Vertex v);
+    DoublyLinkedList<Edge> edgesFrom(Vertex v);
+    DoublyLinkedList<Edge> edgesTo(Vertex v);
     Vertex findVertex(T value);
     Edge findEdge(T valueFrom, T valueTo);
     Edge hasEdge(Vertex v, Vertex u);
@@ -45,6 +45,39 @@ class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
     @Override
     public void removeVertex(Vertex v) throws IllegalArgumentException {
      //  TODO  throw new IllegalArgumentException("There's no such a vertex in the Graph");
+        vertexList.Remove(v.position);
+
+        for (int i = 0; i < adjacencyMatrix.length; i++) { //delete edges in the row from the list
+            if(adjacencyMatrix[i][v.index]!=null) edgeList.Remove(adjacencyMatrix[i][v.index].position);
+        }
+        for (int j = 0; j < adjacencyMatrix.length-1; j++) {//delete edges in the column from the list
+            if(adjacencyMatrix[v.index][j]!=null) edgeList.Remove(adjacencyMatrix[v.index][j].position);
+        }
+
+        if(v.position!=vertexList.last){
+        if(v.position!=vertexList.first) {
+            for (int j = v.index; j < adjacencyMatrix.length - 1; j++) { //move up the part under the deleted by y
+                for (int i = 0; i < v.index; i++) {
+                    adjacencyMatrix[i][j] = adjacencyMatrix[i][j + 1];
+                }
+            }
+            for (int i = v.index; i < adjacencyMatrix.length - 1; i++) { //move left the part right the deleted by x
+                for (int j = 0; j < v.index; j++) {
+                    adjacencyMatrix[i][j] = adjacencyMatrix[i + 1][j];
+                }
+            }
+        }
+        for (int i = v.index; i < adjacencyMatrix.length-1; i++) { //move the part under and right the deleted by diagonal
+            for (int j = v.index; j < adjacencyMatrix.length-1; j++) {
+                adjacencyMatrix[i][j] = adjacencyMatrix[i+1][j+1];
+            }
+        }
+        }
+        for (int i = 0; i < adjacencyMatrix.length; i++) { //delete the last row
+            adjacencyMatrix[i][adjacencyMatrix.length-1] = null;
+        }for (int j = 0; j < adjacencyMatrix.length-1; j++) { //delete the last column
+            adjacencyMatrix[adjacencyMatrix.length-1][j] = null;
+        }
     }
 
     @Override
@@ -69,23 +102,37 @@ class AdjacencyMatrixGraph <T extends Comparable> implements GraphADT{
     }
 
     @Override
-    public Edge[] edgesFrom(Vertex v) {
-        return new Edge[0];
+    public  DoublyLinkedList<Edge> edgesFrom(Vertex v) {
+        DoublyLinkedList<Edge> edgesFrom = new DoublyLinkedList<>();
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            if(adjacencyMatrix[v.index][i]!=null) edgesFrom.Add(edgesFrom.size,adjacencyMatrix[v.index][i]);
+        }
+        return edgesFrom;
     }
 
     @Override
-    public Edge[] edgesTo(Vertex v) {
-        return new Edge[0];
+    public DoublyLinkedList<Edge> edgesTo(Vertex v) {
+        DoublyLinkedList<Edge> edgesTo = new DoublyLinkedList<>();
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            if(adjacencyMatrix[i][v.index]!=null) edgesTo.Add(edgesTo.size,adjacencyMatrix[v.index][i]);
+        }
+        return edgesTo;
     }
 
     @Override
     public Vertex findVertex(Comparable value) {
+        Node node = vertexList.first;
+        for (int i = 0; i < vertexList.size; i++) {
+            if (((Vertex)node.value).element == value) return (Vertex)node.value;
+            node = node.next;
+        }
         return null;
     }
 
     @Override
     public Edge findEdge(Comparable valueFrom, Comparable valueTo) {
-        return null;
+        // TODO maybe add an exception iff null
+        return adjacencyMatrix[findVertex(valueFrom).index][findVertex(valueTo).index];
     }
 
     @Override
