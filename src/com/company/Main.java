@@ -5,33 +5,24 @@ import java.util.Scanner;
 public class Main {
 static AdjacencyMatrixGraph<String,Integer> graph = new AdjacencyMatrixGraph();
     public static void main(String[] args) {
-        ParseInput(InputStringArray());
+        ParseInput();
 
     }
 
-    public static String[] InputStringArray() { //Makes an array of strings from input
+    public  static void ParseInput() {
         Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        sc.nextLine();
+        while(sc.hasNext()) {
 
-        String[] inputs = new String[n];
-        for (int i = 0; i < n; i++) inputs[i] = sc.nextLine();
-        return inputs;
-    }
-
-    public  static void ParseInput(String[] inputs) {
-        for (int i = 0; i < inputs.length; i++) {
-
-            String[] input = inputs[i].split(" ");
+            String[] input = sc.nextLine().split(" ");
 
             switch (input[0]){
                 case "ADD_VERTEX":
                     graph.addVertex(input[1]);
                     break;
-                case "REMOVE_VERTEX": //TODO FIX ERROR
+                case "REMOVE_VERTEX":
                     graph.removeVertex(graph.findVertex(input[1]));
                     break;
-                case "ADD_EDGE":
+                case "ADD_EDGE": //TODO FIX ERROR
                     graph.addEdge(graph.findVertex(input[1]),graph.findVertex(input[2]),input[3]);
                     break;
                 case "REMOVE_EDGE":
@@ -84,7 +75,7 @@ class AdjacencyMatrixGraph <T extends Comparable,K extends Comparable> implement
 
         for (int i = 0; i < adjacencyMatrix.length; i++) {
             for (int j = 0; j < adjacencyMatrix.length; j++) {
-                aMatrix+=adjacencyMatrix[i][j].weight+" ";
+                aMatrix+= adjacencyMatrix[i][j] == null? "\tnull":"\t"+adjacencyMatrix[i][j].weight;
             }
             aMatrix+="\n";
         }
@@ -105,7 +96,7 @@ class AdjacencyMatrixGraph <T extends Comparable,K extends Comparable> implement
     public Vertex addVertex(Comparable value) {
         Vertex<Comparable> vertex= new Vertex<>(value, null, vertexList.size);
         vertex.position = vertexList.Add(vertexList.size,vertex);
-        if(adjacencyMatrix.length< vertex.index) DoubleAdjacencyMatrix();
+        if(adjacencyMatrix.length<= vertex.index) DoubleAdjacencyMatrix();
         return vertex;
     }
 
@@ -164,8 +155,10 @@ class AdjacencyMatrixGraph <T extends Comparable,K extends Comparable> implement
     @Override
     public void removeEdge(Edge e) throws IllegalArgumentException {
         //  TODO  throw new IllegalArgumentException("There's no such an edge in the Graph");
+        //Print();
         edgeList.Remove(e.position);
         adjacencyMatrix[e.from.index][e.to.index] = null;
+        //Print();
     }
 
     @Override
@@ -190,7 +183,7 @@ class AdjacencyMatrixGraph <T extends Comparable,K extends Comparable> implement
     public Vertex findVertex(Comparable value) {
         Node node = vertexList.first;
         for (int i = 0; i < vertexList.size; i++) {
-            if (((Vertex)node.value).element == value) return (Vertex)node.value;
+            if (((Vertex)node.value).element.equals(value)) return (Vertex)node.value;
             node = node.next;
         }
         return null;
